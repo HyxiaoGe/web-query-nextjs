@@ -28,6 +28,13 @@ export default function HomePage() {
       });
 
       const data: SearchResponse = await response.json();
+      
+      // 从响应头中提取响应时间
+      const responseTime = response.headers.get('X-Response-Time');
+      if (responseTime) {
+        data.responseTime = responseTime;
+      }
+      
       setSearchResponse(data);
       
       if (!data.success) {
@@ -91,6 +98,7 @@ export default function HomePage() {
             loading={loading}
             cached={searchResponse?.cached}
             timestamp={searchResponse?.timestamp}
+            responseTime={searchResponse?.responseTime}
           />
         </div>
       )}

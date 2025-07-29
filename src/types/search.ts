@@ -31,6 +31,7 @@ export interface SearchResponse {
   count: number;
   cached: boolean;
   timestamp: string;
+  responseTime?: string; // 响应时间，如 "1234ms"
   error?: string;
 }
 
