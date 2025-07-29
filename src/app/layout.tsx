@@ -59,6 +59,12 @@ export default function RootLayout({
                   >
                     状态
                   </a>
+                  <a 
+                    href="/feedback" 
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    反馈
+                  </a>
                   {/* 预留登录/注册按钮 */}
                   {/* <Button variant="outline" size="sm">登录</Button> */}
                 </nav>
@@ -104,6 +110,11 @@ export default function RootLayout({
                     <li>
                       <a href="/metrics" className="hover:text-foreground">
                         服务状态
+                      </a>
+                    </li>
+                    <li>
+                      <a href="/feedback" className="hover:text-foreground">
+                        用户反馈
                       </a>
                     </li>
                     {/* 预留文档链接 */}

@@ -135,19 +135,46 @@ class SearchService {
       return [];
     }
 
-    return results.slice(0, limit).map(result => ({
-      title: result.title || '',
-      url: result.url || '',
-      content: result.content || '',
-      engine: result.engine || 'unknown',
-      score: result.score || 0,
-      publishedDate: result.publishedDate || null,
-      thumbnail: result.img_src || null,
-      metadata: {
-        category: result.category || 'general',
-        template: result.template || 'default'
+    return results.slice(0, limit).map((result, index) => {
+      // 尝试多种可能的日期字段名
+      let publishedDate = result.publishedDate || result.published_date || result.pub_date || null;
+      
+      // 如果找不到日期但有时间戳，尝试提取
+      if (!publishedDate && result.timestamp) {
+        publishedDate = new Date(result.timestamp * 1000).toISOString();
       }
-    }));
+      
+      // 开发环境调试：打印原始结果结构（仅前3个结果）
+      if (process.env.NODE_ENV === 'development' && index < 3) {
+        console.log(`[DEBUG] ${result.engine} result fields:`, {
+          engine: result.engine,
+          hasPublishedDate: !!result.publishedDate,
+          hasPublished_date: !!result.published_date,
+          hasPub_date: !!result.pub_date,
+          hasTimestamp: !!result.timestamp,
+          availableFields: Object.keys(result).filter(key => 
+            key.toLowerCase().includes('date') || 
+            key.toLowerCase().includes('time') || 
+            key.toLowerCase().includes('publish')
+          ),
+          extractedDate: publishedDate
+        });
+      }
+      
+      return {
+        title: result.title || '',
+        url: result.url || '',
+        content: result.content || '',
+        engine: result.engine || 'unknown',
+        score: result.score || 0,
+        publishedDate,
+        thumbnail: result.img_src || null,
+        metadata: {
+          category: result.category || 'general',
+          template: result.template || 'default'
+        }
+      };
+    });
   }
 
   private generateCacheKey(params: SearchParams): string {

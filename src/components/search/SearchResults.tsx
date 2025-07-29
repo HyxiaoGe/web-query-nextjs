@@ -130,8 +130,10 @@ function SearchResultItem({ result, query, index }: SearchResultItemProps) {
         </a>
       </h3>
       
-      <p className="text-muted-foreground text-sm mb-2 font-mono">
-        {result.url}
+      <p className="text-muted-foreground text-sm mb-2 font-mono break-all">
+        <span className="inline-block max-w-full truncate">
+          {result.url}
+        </span>
       </p>
       
       {truncatedContent && (
