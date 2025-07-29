@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { searchService } from '@/lib/search';
 import { rateLimiter, RateLimiter } from '@/lib/rate-limiter';
+import { recordSearchQuery } from '@/lib/search-stats';
 import metricsCollector from '@/lib/metrics';
 import type { SearchParams } from '@/types/search';
 
@@ -115,6 +116,8 @@ export async function POST(request: NextRequest) {
       // 记录监控指标
       if (result.success) {
         metricsCollector.recordSearch(responseTime, result.cached);
+        // 记录搜索词统计（异步执行，不阻塞响应）
+        recordSearchQuery(validation.params!.q).catch(console.error);
       } else {
         metricsCollector.recordError('search_failed');
       }
@@ -219,6 +222,8 @@ export async function GET(request: NextRequest) {
       // 记录监控指标
       if (result.success) {
         metricsCollector.recordSearch(responseTime, result.cached);
+        // 记录搜索词统计（异步执行，不阻塞响应）
+        recordSearchQuery(validation.params!.q).catch(console.error);
       } else {
         metricsCollector.recordError('search_failed');
       }
