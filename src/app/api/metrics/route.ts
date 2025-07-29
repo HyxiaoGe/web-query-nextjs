@@ -57,7 +57,10 @@ export async function GET(request: NextRequest) {
         
         // 系统指标
         system: {
-          uptime: metrics.uptimeFormatted,
+          uptime: {
+            seconds: Math.floor(metrics.uptime / 1000),
+            formatted: metrics.uptimeFormatted
+          },
           uptime_ms: metrics.uptime,
           last_reset: new Date(metrics.lastResetTime).toISOString(),
           memory: metrics.systemInfo.memory,

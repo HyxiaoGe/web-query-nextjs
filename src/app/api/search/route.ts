@@ -1,6 +1,7 @@
 // 搜索 API 接口
 import { NextRequest, NextResponse } from 'next/server';
 import { searchService } from '@/lib/search';
+import { rateLimiter, RateLimiter } from '@/lib/rate-limiter';
 import metricsCollector from '@/lib/metrics';
 import type { SearchParams } from '@/types/search';
 
@@ -76,33 +77,71 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 执行搜索并记录性能指标
-    const startTime = Date.now();
-    const result = await searchService.search(validation.params!);
-    const responseTime = Date.now() - startTime;
+    // 获取客户端IP
+    const clientIP = RateLimiter.getClientIP(request);
     
-    // 记录监控指标
-    if (result.success) {
-      metricsCollector.recordSearch(responseTime, result.cached);
-    } else {
-      metricsCollector.recordError('search_failed');
+    // 检查限流
+    const rateLimitCheck = await rateLimiter.checkRateLimit(clientIP, validation.params!.q);
+    if (!rateLimitCheck.allowed) {
+      // 记录限流事件
+      metricsCollector.recordError('rate_limited');
+      
+      return NextResponse.json(
+        {
+          success: false,
+          error: rateLimitCheck.reason,
+          timestamp: new Date().toISOString(),
+          retryAfter: rateLimitCheck.retryAfter
+        },
+        { 
+          status: 429,
+          headers: {
+            'Retry-After': rateLimitCheck.retryAfter?.toString() || '60',
+            'X-RateLimit-Reason': rateLimitCheck.reason || 'Rate limit exceeded'
+          }
+        }
+      );
     }
-    
-    // 返回结果
-    return NextResponse.json(result, {
-      status: result.success ? 200 : 500,
-      headers: {
-        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600',
-        'X-API-Version': '1.0',
-        'X-Response-Time': `${responseTime}ms`
+
+    // 记录请求
+    await rateLimiter.recordRequest(clientIP, validation.params!.q);
+
+    try {
+      // 执行搜索并记录性能指标
+      const startTime = Date.now();
+      const result = await searchService.search(validation.params!);
+      const responseTime = Date.now() - startTime;
+      
+      // 记录监控指标
+      if (result.success) {
+        metricsCollector.recordSearch(responseTime, result.cached);
+      } else {
+        metricsCollector.recordError('search_failed');
       }
-    });
+      
+      // 返回结果
+      return NextResponse.json(result, {
+        status: result.success ? 200 : 500,
+        headers: {
+          'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600',
+          'X-API-Version': '1.0',
+          'X-Response-Time': `${responseTime}ms`
+        }
+      });
+      
+    } finally {
+      // 无论成功失败都要释放并发计数
+      await rateLimiter.finishRequest();
+    }
 
   } catch (error) {
     console.error('Search API error:', error);
     
     // 记录错误
     metricsCollector.recordError('api_error');
+    
+    // 确保释放并发计数
+    await rateLimiter.finishRequest();
     
     return NextResponse.json(
       {
@@ -143,31 +182,67 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 执行搜索并记录性能指标
-    const startTime = Date.now();
-    const result = await searchService.search(validation.params!);
-    const responseTime = Date.now() - startTime;
+    // 获取客户端IP
+    const clientIP = RateLimiter.getClientIP(request);
     
-    // 记录监控指标
-    if (result.success) {
-      metricsCollector.recordSearch(responseTime, result.cached);
-    } else {
-      metricsCollector.recordError('search_failed');
+    // 检查限流
+    const rateLimitCheck = await rateLimiter.checkRateLimit(clientIP, validation.params!.q);
+    if (!rateLimitCheck.allowed) {
+      metricsCollector.recordError('rate_limited');
+      
+      return NextResponse.json(
+        {
+          success: false,
+          error: rateLimitCheck.reason,
+          timestamp: new Date().toISOString(),
+          retryAfter: rateLimitCheck.retryAfter
+        },
+        { 
+          status: 429,
+          headers: {
+            'Retry-After': rateLimitCheck.retryAfter?.toString() || '60',
+            'X-RateLimit-Reason': rateLimitCheck.reason || 'Rate limit exceeded'
+          }
+        }
+      );
     }
-    
-    return NextResponse.json(result, {
-      status: result.success ? 200 : 500,
-      headers: {
-        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600',
-        'X-Response-Time': `${responseTime}ms`
+
+    // 记录请求
+    await rateLimiter.recordRequest(clientIP, validation.params!.q);
+
+    try {
+      // 执行搜索并记录性能指标
+      const startTime = Date.now();
+      const result = await searchService.search(validation.params!);
+      const responseTime = Date.now() - startTime;
+      
+      // 记录监控指标
+      if (result.success) {
+        metricsCollector.recordSearch(responseTime, result.cached);
+      } else {
+        metricsCollector.recordError('search_failed');
       }
-    });
+      
+      return NextResponse.json(result, {
+        status: result.success ? 200 : 500,
+        headers: {
+          'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600',
+          'X-Response-Time': `${responseTime}ms`
+        }
+      });
+      
+    } finally {
+      await rateLimiter.finishRequest();
+    }
 
   } catch (error) {
     console.error('Search API error:', error);
     
     // 记录错误
     metricsCollector.recordError('api_error');
+    
+    // 确保释放并发计数
+    await rateLimiter.finishRequest();
     
     return NextResponse.json(
       {

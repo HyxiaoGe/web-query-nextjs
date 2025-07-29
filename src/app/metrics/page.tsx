@@ -57,6 +57,7 @@ interface MetricsData {
   };
 }
 
+
 export default function MetricsPage() {
   const [metrics, setMetrics] = useState<MetricsData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -102,6 +103,7 @@ export default function MetricsPage() {
     if (score >= 70) return 'text-yellow-600';
     return 'text-red-600';
   };
+
 
   if (loading) {
     return (
@@ -227,6 +229,7 @@ export default function MetricsPage() {
             <div className="text-3xl">✨</div>
           </div>
         </div>
+
       </div>
 
       {/* 详细指标 */}
@@ -339,6 +342,7 @@ export default function MetricsPage() {
             </div>
           </div>
         </div>
+
       </div>
 
     </div>
