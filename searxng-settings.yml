@@ -1,0 +1,126 @@
+# SearxNG 配置文件 (Next.js 版本)
+general:
+  debug: false
+  instance_name: "Web Query Search"
+  contact_url: false
+  enable_metrics: false
+
+search:
+  safe_search: 0
+  autocomplete: "google"
+  default_lang: "zh-CN"
+  ban_time_on_fail: 5
+  max_request_timeout: 10.0
+  formats:
+    - html
+    - json
+
+server:
+  port: 8080
+  bind_address: "0.0.0.0"
+  secret_key: "web-query-searxng-secret-key-change-in-production"
+  base_url: false
+  image_proxy: true
+  http_protocol_version: "1.1"
+  method: "POST"
+  limiter: false
+  public_instance: false
+
+ui:
+  default_locale: ""
+  query_in_title: true
+  infinite_scroll: false
+  center_alignment: false
+  default_theme: "simple"
+  theme_args:
+    simple_style: "auto"
+
+# 启用的搜索引擎（优化 MVP 版本）
+engines:
+  - name: google
+    engine: google
+    shortcut: g
+    disabled: false
+    use_mobile_ui: false
+
+  - name: bing
+    engine: bing
+    shortcut: bi
+    disabled: false
+
+  - name: duckduckgo
+    engine: duckduckgo
+    shortcut: ddg
+    disabled: false
+
+  - name: startpage
+    engine: startpage
+    shortcut: sp
+    disabled: false
+
+  - name: wikipedia
+    engine: wikipedia
+    shortcut: wp
+    disabled: false
+    categories: general
+
+  - name: github
+    engine: github
+    shortcut: gh
+    disabled: false
+    categories: it
+
+  - name: stackoverflow
+    engine: stackoverflow
+    shortcut: st
+    disabled: false
+    categories: it
+
+# 搜索类别
+categories_as_tabs:
+  general:
+    - name: general
+  images:
+    - name: images
+  videos:
+    - name: videos
+  news:
+    - name: news
+  it:
+    - name: it
+
+enabled_plugins: []
+
+# 隐私设置
+privacy:
+  image_proxy:
+    enabled: true
+    url: ""
+
+# 限制设置 - MVP 版本暂时禁用
+limiter:
+  enabled: false
+  local_addresses:
+    - 127.0.0.1
+    - 172.16.0.0/12
+    - 192.168.0.0/16
+    - 10.0.0.0/8
+
+# Bot检测 - 完全禁用
+botdetection:
+  enabled: false
+
+# DOI resolver configuration - fixes KeyError: 'default_doi_resolver'
+doi_resolvers:
+  oadoi.org: 'https://oadoi.org/'
+  doi.org: 'https://doi.org/'
+  doai.io: 'https://dissem.in/'
+  sci-hub.se: 'https://sci-hub.se/'
+  sci-hub.st: 'https://sci-hub.st/'
+  sci-hub.ru: 'https://sci-hub.ru/'
+default_doi_resolver: 'oadoi.org'
+
+# 结果处理
+result_processors:
+  - name: "tracker_remover"
+    enabled: true

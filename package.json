@@ -1,0 +1,43 @@
+{
+  "name": "web-query-nextjs",
+  "version": "0.1.0",
+  "description": "Universal Web Search Service with Next.js",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "14.0.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "typescript": "^5.3.3",
+    "@types/node": "^20.10.5",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "axios": "^1.6.2",
+    "redis": "^4.6.10",
+    "class-validator": "^0.14.0",
+    "class-transformer": "^0.5.1",
+    "lucide-react": "^0.303.0",
+    "clsx": "^2.0.0",
+    "tailwind-merge": "^2.2.0",
+    "@radix-ui/react-slot": "^1.0.2",
+    "class-variance-authority": "^0.7.0",
+    "tailwindcss-animate": "^1.0.7"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "@tailwindcss/typography": "^0.5.10",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "14.0.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
