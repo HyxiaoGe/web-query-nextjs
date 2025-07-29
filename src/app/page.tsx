@@ -102,7 +102,7 @@ export default function HomePage() {
             <div className="text-3xl mb-3">🔍</div>
             <h3 className="font-semibold mb-2">智能聚合</h3>
             <p className="text-sm text-muted-foreground">
-              同时搜索多个引擎，获得更全面的结果
+              聚合多引擎，结果更全面
             </p>
           </div>
           

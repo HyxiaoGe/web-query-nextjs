@@ -64,9 +64,6 @@ export function SearchBox({
       </form>
       
       {/* 搜索建议或快捷方式（预留扩展） */}
-      <div className="mt-4 text-center text-sm text-muted-foreground">
-        <p>支持中英文搜索 • 实时聚合多个搜索引擎结果</p>
-      </div>
     </div>
   );
 }

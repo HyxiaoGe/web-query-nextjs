@@ -1,4 +1,4 @@
-# Web Query - Next.js 版本
+# Web Query - Next.js
 
 基于 Next.js 和 SearxNG 的通用网络搜索服务，提供简洁的搜索界面和强大的 API。
 

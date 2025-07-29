@@ -40,7 +40,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
       <body className={inter.className}>
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-background flex flex-col">
           {/* 预留导航栏位置 */}
           <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="container mx-auto px-4 py-4">
@@ -68,15 +68,15 @@ export default function RootLayout({
           </header>
 
           {/* 主内容区域 */}
-          <main className="container mx-auto px-4 py-8">
+          <main className="flex-1 container mx-auto px-4 py-8">
             {children}
           </main>
 
           {/* 页脚 */}
           <footer className="border-t mt-16">
-            <div className="container mx-auto px-4 py-8">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div>
+            <div className="max-w-6xl mx-auto px-4 py-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 justify-items-center md:justify-items-start">
+                <div className="text-center md:text-left">
                   <h3 className="font-semibold mb-3">关于 Web Query</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     基于 SearxNG 的开源搜索服务，聚合多个搜索引擎结果，
@@ -84,9 +84,9 @@ export default function RootLayout({
                   </p>
                 </div>
                 
-                <div>
+                <div className="text-center md:text-left">
                   <h3 className="font-semibold mb-3">功能特性</h3>
-                  <ul className="text-sm text-muted-foreground space-y-1">
+                  <ul className="text-sm text-muted-foreground space-y-1 inline-block text-left">
                     <li>• 多搜索引擎聚合</li>
                     <li>• 结果智能缓存</li>
                     <li>• 隐私保护</li>
@@ -94,11 +94,11 @@ export default function RootLayout({
                   </ul>
                 </div>
                 
-                <div>
+                <div className="text-center md:text-left">
                   <h3 className="font-semibold mb-3">技术支持</h3>
-                  <ul className="text-sm text-muted-foreground space-y-1">
+                  <ul className="text-sm text-muted-foreground space-y-1 inline-block text-left">
                     <li>
-                      <a href="https://github.com/yourusername/web-query" className="hover:text-foreground">
+                      <a href="https://github.com/HyxiaoGe/web-query-nextjs" target="_blank" rel="noopener noreferrer" className="hover:text-foreground">
                         GitHub 项目
                       </a>
                     </li>
