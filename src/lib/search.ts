@@ -2,6 +2,8 @@
 import axios from 'axios';
 import crypto from 'crypto';
 import { cacheService } from './cache';
+import { RelevanceScorer } from './relevance';
+import { DiversityOptimizer } from './diversity';
 import type { SearchParams, SearchResult, SearchResponse } from '@/types/search';
 
 class SearchService {
@@ -35,7 +37,18 @@ class SearchService {
       const response = await this.callSearxNG(params);
       
       // 格式化结果
-      const results = this.formatResults(response.data.results || [], params.limit || this.maxResults);
+      let results = this.formatResults(response.data.results || [], params.limit || this.maxResults);
+      
+      // 应用相关性评分和过滤
+      results = RelevanceScorer.filterSpamResults(results);
+      results = RelevanceScorer.scoreResults(results, params.q);
+      results = RelevanceScorer.deduplicateResults(results);
+      
+      // 优化结果多样性，确保来自不同搜索引擎
+      results = DiversityOptimizer.optimizeDiversity(results, params.limit || this.maxResults);
+      
+      // 增强引擎可见性（可选）
+      results = DiversityOptimizer.enhanceEngineVisibility(results);
       
       // 构造响应
       const searchResponse: SearchResponse = {
@@ -88,12 +101,17 @@ class SearchService {
       safesearch: (params.safesearch || 0).toString()
     });
 
+    // 如果没有指定引擎，强制使用多个引擎
     if (params.engines) {
       if (Array.isArray(params.engines)) {
         searchParams.append('engines', params.engines.join(','));
       } else {
         searchParams.append('engines', params.engines);
       }
+    } else {
+      // 尝试多引擎搜索，即使部分引擎失败也能获得结果
+      // 优先使用Google（最可靠），其次尝试Baidu和DuckDuckGo
+      searchParams.append('engines', 'google,baidu,duckduckgo');
     }
 
     if (params.time_range) {
