@@ -1,23 +1,41 @@
 // 健康检查 API
 import { NextResponse } from 'next/server';
 import { searchService } from '@/lib/search';
+import metricsCollector from '@/lib/metrics';
 
 export async function GET() {
   try {
     const health = await searchService.healthCheck();
+    const metrics = metricsCollector.getMetrics();
     
-    const status = health.status === 'healthy' ? 200 : 503;
+    // 判断整体健康状态
+    const errorRate = metrics.errorRate;
+    const avgResponseTime = metrics.avgResponseTime;
+    const isHealthy = health.status === 'healthy' && errorRate < 5 && avgResponseTime < 5000;
+    
+    const status = isHealthy ? 200 : 503;
     
     return NextResponse.json({
       success: true,
-      status: health.status,
+      status: isHealthy ? 'healthy' : 'degraded',
       checks: {
         searxng: health.searxng,
         cache: health.cache,
-        api: true
+        api: true,
+        performance: {
+          avg_response_time: metrics.avgResponseTimeFormatted,
+          error_rate: metrics.errorRateFormatted,
+          cache_hit_rate: metrics.cacheHitRateFormatted,
+          status: errorRate < 5 && avgResponseTime < 5000 ? 'healthy' : 'degraded'
+        }
+      },
+      metrics: {
+        total_searches: metrics.totalSearches,
+        uptime: metrics.uptimeFormatted,
+        memory_usage: `${metrics.systemInfo.memory.used}MB / ${metrics.systemInfo.memory.total}MB`,
+        success_rate: `${Math.round((1 - errorRate / 100) * 10000) / 100}%`
       },
       timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
       version: '1.0.0-mvp'
     }, { status });
 

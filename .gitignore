@@ -37,3 +37,6 @@ yarn-error.log*
 Dockerfile.dev
 docker-compose.yml
 searxng/
+
+# Metrics data
+.metrics.json

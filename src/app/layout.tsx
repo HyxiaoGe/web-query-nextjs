@@ -54,8 +54,7 @@ export default function RootLayout({
                 {/* 预留用户菜单位置 */}
                 <nav className="flex items-center gap-4">
                   <a 
-                    href="/api/health" 
-                    target="_blank"
+                    href="/metrics" 
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
                     状态
@@ -103,7 +102,7 @@ export default function RootLayout({
                       </a>
                     </li>
                     <li>
-                      <a href="/api/health" className="hover:text-foreground">
+                      <a href="/metrics" className="hover:text-foreground">
                         服务状态
                       </a>
                     </li>

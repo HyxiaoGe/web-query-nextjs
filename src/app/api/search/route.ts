@@ -1,6 +1,7 @@
 // 搜索 API 接口
 import { NextRequest, NextResponse } from 'next/server';
 import { searchService } from '@/lib/search';
+import metricsCollector from '@/lib/metrics';
 import type { SearchParams } from '@/types/search';
 
 // 输入验证
@@ -75,20 +76,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 执行搜索
+    // 执行搜索并记录性能指标
+    const startTime = Date.now();
     const result = await searchService.search(validation.params!);
+    const responseTime = Date.now() - startTime;
+    
+    // 记录监控指标
+    if (result.success) {
+      metricsCollector.recordSearch(responseTime, result.cached);
+    } else {
+      metricsCollector.recordError('search_failed');
+    }
     
     // 返回结果
     return NextResponse.json(result, {
       status: result.success ? 200 : 500,
       headers: {
         'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600',
-        'X-API-Version': '1.0'
+        'X-API-Version': '1.0',
+        'X-Response-Time': `${responseTime}ms`
       }
     });
 
   } catch (error) {
     console.error('Search API error:', error);
+    
+    // 记录错误
+    metricsCollector.recordError('api_error');
     
     return NextResponse.json(
       {
@@ -129,18 +143,31 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 执行搜索
+    // 执行搜索并记录性能指标
+    const startTime = Date.now();
     const result = await searchService.search(validation.params!);
+    const responseTime = Date.now() - startTime;
+    
+    // 记录监控指标
+    if (result.success) {
+      metricsCollector.recordSearch(responseTime, result.cached);
+    } else {
+      metricsCollector.recordError('search_failed');
+    }
     
     return NextResponse.json(result, {
       status: result.success ? 200 : 500,
       headers: {
-        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600'
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600',
+        'X-Response-Time': `${responseTime}ms`
       }
     });
 
   } catch (error) {
     console.error('Search API error:', error);
+    
+    // 记录错误
+    metricsCollector.recordError('api_error');
     
     return NextResponse.json(
       {
