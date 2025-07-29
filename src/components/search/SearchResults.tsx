@@ -3,6 +3,7 @@
 import { ExternalLink, Clock, Zap } from 'lucide-react';
 import type { SearchResult } from '@/types/search';
 import { extractDomain, formatTime, truncateText, highlightText } from '@/lib/utils';
+import FeedbackButton from './FeedbackButton';
 
 interface SearchResultsProps {
   results: SearchResult[];
@@ -103,9 +104,11 @@ function SearchResultItem({ result, query, index }: SearchResultItemProps) {
   const truncatedContent = truncateText(result.content);
 
   return (
-    <article className="group">
+    <article className="group relative">
       <div className="mb-1 flex items-center gap-2 text-sm text-muted-foreground">
-        <span className="px-2 py-1 bg-muted rounded text-xs font-medium">
+        <span 
+          className="px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600"
+        >
           {result.engine}
         </span>
         <span>{domain}</span>
@@ -133,18 +136,27 @@ function SearchResultItem({ result, query, index }: SearchResultItemProps) {
       
       {truncatedContent && (
         <p 
-          className="text-foreground leading-relaxed"
+          className="text-foreground leading-relaxed mb-3"
           dangerouslySetInnerHTML={{ 
             __html: highlightText(truncatedContent, query) 
           }} 
         />
       )}
       
-      {result.publishedDate && (
-        <div className="mt-2 text-xs text-muted-foreground">
-          发布时间: {formatTime(result.publishedDate)}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+          {result.publishedDate && (
+            <span>发布时间: {formatTime(result.publishedDate)}</span>
+          )}
+          {result.score && (
+            <span>相关度: {Math.round(result.score * 100)}%</span>
+          )}
         </div>
-      )}
+        
+        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <FeedbackButton result={result} query={query} />
+        </div>
+      </div>
     </article>
   );
 }

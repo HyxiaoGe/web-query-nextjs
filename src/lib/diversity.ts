@@ -51,9 +51,9 @@ export class DiversityOptimizer {
     }
     
     // 对每个引擎的结果按分数排序
-    for (const [engine, engineResults] of groups) {
+    groups.forEach((engineResults, engine) => {
       engineResults.sort((a, b) => (b.score || 0) - (a.score || 0));
-    }
+    });
     
     return groups;
   }
@@ -69,7 +69,7 @@ export class DiversityOptimizer {
     const engines = Array.from(resultsByEngine.keys());
     
     // 定义引擎优先级和最小配额 - 确保多样性
-    const enginePriorities = {
+    const enginePriorities: { [key: string]: { priority: number; minQuota: number; maxQuota: number } } = {
       'google': { priority: 1, minQuota: 3, maxQuota: 5 },
       'baidu': { priority: 1, minQuota: 3, maxQuota: 4 },      // 提高百度优先级
       'duckduckgo': { priority: 2, minQuota: 2, maxQuota: 3 }, // 提高DuckDuckGo优先级
@@ -132,12 +132,12 @@ export class DiversityOptimizer {
     const engineIndexes = new Map<string, number>();
     
     // 初始化每个引擎的索引
-    for (const engine of resultsByEngine.keys()) {
+    const engines = Array.from(resultsByEngine.keys());
+    engines.forEach(engine => {
       engineIndexes.set(engine, 0);
-    }
+    });
     
     // 轮询选择，确保结果交替来自不同引擎
-    const engines = Array.from(resultsByEngine.keys());
     let engineIndex = 0;
     
     while (selected.length < targetCount) {
@@ -186,7 +186,7 @@ export class DiversityOptimizer {
     const availableResults: SearchResult[] = [];
     
     // 引擎优先级（与calculateQuotas中的一致）
-    const enginePriorities = {
+    const enginePriorities: { [key: string]: number } = {
       'google': 1,
       'baidu': 1,
       'duckduckgo': 2,
@@ -217,25 +217,4 @@ export class DiversityOptimizer {
     return [...currentResults, ...additionalResults];
   }
 
-  /**
-   * 在搜索结果中标注引擎来源（可选的视觉增强）
-   */
-  static enhanceEngineVisibility(results: SearchResult[]): SearchResult[] {
-    const engineColors = {
-      'google': '#4285F4',
-      'baidu': '#2319DC',
-      'duckduckgo': '#DE5833',
-      'wikipedia': '#000000',
-      'github': '#333333',
-      'stackoverflow': '#F48024'
-    };
-    
-    return results.map(result => ({
-      ...result,
-      metadata: {
-        ...result.metadata,
-        engineColor: engineColors[result.engine.toLowerCase()] || '#666666'
-      }
-    }));
-  }
 }

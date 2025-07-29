@@ -23,6 +23,10 @@ interface MetricsData {
   errorRate: number;
   errorTypes: Record<string, number>;
   
+  // 用户反馈指标
+  feedbackCount: number;
+  feedbackTypes: Record<string, number>;
+  
   // 系统指标
   startTime: number;
   lastResetTime: number;
@@ -49,9 +53,14 @@ class MetricsCollector {
         const data = fs.readFileSync(this.dataFile, 'utf8');
         const savedMetrics = JSON.parse(data);
         
-        // 验证数据结构
+        // 验证数据结构并补充缺失字段
         if (this.isValidMetricsData(savedMetrics)) {
-          return savedMetrics;
+          // 为旧数据补充新字段
+          return {
+            ...savedMetrics,
+            feedbackCount: savedMetrics.feedbackCount || 0,
+            feedbackTypes: savedMetrics.feedbackTypes || {}
+          };
         }
       }
     } catch (error) {
@@ -69,6 +78,8 @@ class MetricsCollector {
       totalErrors: 0,
       errorRate: 0,
       errorTypes: {},
+      feedbackCount: 0,
+      feedbackTypes: {},
       startTime: Date.now(),
       lastResetTime: Date.now()
     };
@@ -97,7 +108,9 @@ class MetricsCollector {
            typeof data.totalErrors === 'number' &&
            typeof data.startTime === 'number' &&
            typeof data.lastResetTime === 'number' &&
-           typeof data.errorTypes === 'object';
+           typeof data.errorTypes === 'object' &&
+           (typeof data.feedbackCount === 'number' || data.feedbackCount === undefined) &&
+           (typeof data.feedbackTypes === 'object' || data.feedbackTypes === undefined);
   }
 
   /**
@@ -139,6 +152,17 @@ class MetricsCollector {
   }
 
   /**
+   * 记录用户反馈
+   */
+  recordFeedback(feedbackType: string) {
+    this.metrics.feedbackCount++;
+    this.metrics.feedbackTypes[feedbackType] = (this.metrics.feedbackTypes[feedbackType] || 0) + 1;
+    
+    // 保存数据到文件
+    this.saveMetrics();
+  }
+
+  /**
    * 获取当前指标
    */
   getMetrics() {
@@ -171,6 +195,8 @@ class MetricsCollector {
       totalErrors: 0,
       errorRate: 0,
       errorTypes: {},
+      feedbackCount: 0,
+      feedbackTypes: {},
       startTime,
       lastResetTime: Date.now()
     };
@@ -232,5 +258,6 @@ class MetricsCollector {
 // 创建全局单例实例
 const metricsCollector = new MetricsCollector();
 
+export { metricsCollector };
 export default metricsCollector;
 export type { MetricsData };

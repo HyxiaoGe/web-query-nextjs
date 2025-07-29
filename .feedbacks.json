@@ -1,0 +1,49 @@
+[
+  {
+    "id": "f9adcff1-f942-4140-8a0b-670523ce498d",
+    "query": "人工智能测试",
+    "result": {
+      "title": "朱松纯教授团队提出通用人工智能测试评级的标准与平台",
+      "url": "https://www.bigai.ai/blog/news/%E6%9C%B1%E6%9D%BE%E7%BA%AF%E6%95%99%E6%8E%88%E5%9B%A2%E9%98%9F%E6%8F%90%E5%87%BA%E9%80%9A%E7%94%A8%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%E6%B5%8B%E8%AF%95%E8%AF%84%E7%BA%A7%E7%9A%84%E6%A0%87%E5%87%86/",
+      "content": "通智测试平台满足了以下3个条件：其一，多样化仿真交互场景...",
+      "engine": "google",
+      "score": 1.79
+    },
+    "feedback": {
+      "type": "helpful"
+    },
+    "timestamp": "2025-07-29T17:22:46.493Z",
+    "userAgent": "curl/7.81.0"
+  },
+  {
+    "id": "98913809-ac07-4eac-bdf7-ed49f8c06039",
+    "query": "人工智能测试",
+    "result": {
+      "title": "朱松纯教授团队提出通用人工智能测试评级的标准与平台",
+      "url": "https://www.bigai.ai/blog/news/test",
+      "content": "通智测试平台满足了以下3个条件：其一，多样化仿真交互场景...",
+      "engine": "google",
+      "score": 1.79
+    },
+    "feedback": {
+      "type": "helpful"
+    },
+    "timestamp": "2025-07-29T17:23:35.539Z",
+    "userAgent": "curl/7.81.0"
+  },
+  {
+    "id": "60465064-6f84-4347-9c42-870df809c368",
+    "query": "人工智能测试",
+    "result": {
+      "title": "测试结果2",
+      "url": "https://example.com/test2",
+      "content": "这是一个测试内容...",
+      "engine": "duckduckgo"
+    },
+    "feedback": {
+      "type": "inaccurate"
+    },
+    "timestamp": "2025-07-29T17:23:55.115Z",
+    "userAgent": "curl/7.81.0"
+  }
+]

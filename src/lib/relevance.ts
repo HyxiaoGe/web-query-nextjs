@@ -187,7 +187,7 @@ export class RelevanceScorer {
       }
     }
     
-    return [...new Set(tokens)]; // 去重
+    return Array.from(new Set(tokens)); // 去重
   }
 
   /**

@@ -60,7 +60,11 @@ export async function GET(request: NextRequest) {
           uptime: metrics.uptimeFormatted,
           uptime_ms: metrics.uptime,
           last_reset: new Date(metrics.lastResetTime).toISOString(),
-          ...metrics.systemInfo
+          memory: metrics.systemInfo.memory,
+          cpu: metrics.systemInfo.cpu,
+          nodeVersion: metrics.systemInfo.nodeVersion,
+          platform: metrics.systemInfo.platform,
+          arch: metrics.systemInfo.arch
         },
         
         // 统计摘要

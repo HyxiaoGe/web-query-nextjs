@@ -47,9 +47,6 @@ class SearchService {
       // 优化结果多样性，确保来自不同搜索引擎
       results = DiversityOptimizer.optimizeDiversity(results, params.limit || this.maxResults);
       
-      // 增强引擎可见性（可选）
-      results = DiversityOptimizer.enhanceEngineVisibility(results);
-      
       // 构造响应
       const searchResponse: SearchResponse = {
         success: true,
