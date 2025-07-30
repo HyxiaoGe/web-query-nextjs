@@ -71,4 +71,14 @@ export class UpstashRateLimiter {
     const ip = forwarded?.split(',')[0] || real || 'unknown';
     return ip.trim();
   }
+
+  async getStatus(): Promise<{
+    concurrentRequests: number;
+    config: any;
+  }> {
+    return {
+      concurrentRequests: 0, // Upstash 不跟踪并发
+      config: this.config
+    };
+  }
 }

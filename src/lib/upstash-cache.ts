@@ -8,7 +8,7 @@ interface UpstashResponse {
 class UpstashCacheService implements CacheService {
   private baseUrl: string;
   private token: string;
-  private ttl: number;
+  private defaultTtl: number;
 
   constructor() {
     const url = process.env.UPSTASH_REDIS_REST_URL || '';
@@ -20,7 +20,7 @@ class UpstashCacheService implements CacheService {
     
     this.baseUrl = url;
     this.token = token;
-    this.ttl = parseInt(process.env.CACHE_TTL || '3600');
+    this.defaultTtl = parseInt(process.env.CACHE_TTL || '3600');
   }
 
   private async request(command: string[], method = 'POST'): Promise<any> {
@@ -61,7 +61,7 @@ class UpstashCacheService implements CacheService {
 
   async set(key: string, value: any, ttl?: number): Promise<boolean> {
     try {
-      const finalTtl = ttl || this.ttl;
+      const finalTtl = ttl || this.defaultTtl;
       const serialized = JSON.stringify(value);
       
       await this.request(['SETEX', key, finalTtl.toString(), serialized]);
