@@ -6,7 +6,7 @@ import metricsCollector from '@/lib/metrics';
 export async function GET() {
   try {
     const health = await searchService.healthCheck();
-    const metrics = metricsCollector.getMetrics();
+    const metrics = await metricsCollector.getMetrics();
     
     // 判断整体健康状态
     const errorRate = metrics.errorRate;
