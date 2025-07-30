@@ -1,11 +1,10 @@
 /**
  * 监控指标收集模块
  * 统计搜索性能、错误率、系统资源等指标
- * 支持持久化存储到文件系统
+ * 支持持久化存储到 Redis (Vercel 兼容)
  */
 
-import fs from 'fs';
-import path from 'path';
+import { cacheService } from './cache';
 
 interface MetricsData {
   // 性能指标
@@ -34,40 +33,21 @@ interface MetricsData {
 
 class MetricsCollector {
   private metrics: MetricsData;
-  private dataFile: string;
+  private cacheKey: string = 'web_query_metrics';
+  private metricsLoaded: boolean = false;
   
   constructor() {
-    // 指标数据文件路径
-    this.dataFile = path.join(process.cwd(), '.metrics.json');
+    // 初始化默认指标
+    this.metrics = this.getDefaultMetrics();
     
-    // 加载已保存的指标数据
-    this.metrics = this.loadMetrics();
+    // 异步加载保存的指标数据
+    this.loadMetrics();
   }
 
   /**
-   * 从文件加载指标数据
+   * 获取默认指标数据
    */
-  private loadMetrics(): MetricsData {
-    try {
-      if (fs.existsSync(this.dataFile)) {
-        const data = fs.readFileSync(this.dataFile, 'utf8');
-        const savedMetrics = JSON.parse(data);
-        
-        // 验证数据结构并补充缺失字段
-        if (this.isValidMetricsData(savedMetrics)) {
-          // 为旧数据补充新字段
-          return {
-            ...savedMetrics,
-            feedbackCount: savedMetrics.feedbackCount || 0,
-            feedbackTypes: savedMetrics.feedbackTypes || {}
-          };
-        }
-      }
-    } catch (error) {
-      console.warn('Failed to load metrics data, starting fresh:', error);
-    }
-    
-    // 返回默认值
+  private getDefaultMetrics(): MetricsData {
     return {
       totalSearches: 0,
       totalResponseTime: 0,
@@ -86,13 +66,37 @@ class MetricsCollector {
   }
 
   /**
-   * 保存指标数据到文件
+   * 从 Redis 加载指标数据
    */
-  private saveMetrics() {
+  private async loadMetrics(): Promise<void> {
     try {
-      fs.writeFileSync(this.dataFile, JSON.stringify(this.metrics, null, 2));
+      const savedMetrics = await cacheService.get(this.cacheKey);
+      
+      if (savedMetrics && this.isValidMetricsData(savedMetrics)) {
+        // 为旧数据补充新字段
+        this.metrics = {
+          ...savedMetrics,
+          feedbackCount: savedMetrics.feedbackCount || 0,
+          feedbackTypes: savedMetrics.feedbackTypes || {}
+        };
+      }
+      
+      this.metricsLoaded = true;
     } catch (error) {
-      console.error('Failed to save metrics data:', error);
+      console.warn('Failed to load metrics data from Redis, using defaults:', error);
+      this.metricsLoaded = true;
+    }
+  }
+
+  /**
+   * 保存指标数据到 Redis
+   */
+  private async saveMetrics(): Promise<void> {
+    try {
+      // 设置过期时间为 30 天（与搜索统计一致）
+      await cacheService.set(this.cacheKey, this.metrics, 30 * 24 * 60 * 60);
+    } catch (error) {
+      console.error('Failed to save metrics data to Redis:', error);
     }
   }
 
@@ -114,9 +118,21 @@ class MetricsCollector {
   }
 
   /**
+   * 确保指标数据已从 Redis 加载
+   */
+  private async ensureMetricsLoaded(): Promise<void> {
+    if (!this.metricsLoaded) {
+      await this.loadMetrics();
+    }
+  }
+
+  /**
    * 记录搜索请求
    */
-  recordSearch(responseTime: number, cached: boolean = false) {
+  async recordSearch(responseTime: number, cached: boolean = false): Promise<void> {
+    // 确保指标已加载
+    await this.ensureMetricsLoaded();
+    
     this.metrics.totalSearches++;
     this.metrics.totalResponseTime += responseTime;
     this.metrics.avgResponseTime = this.metrics.totalResponseTime / this.metrics.totalSearches;
@@ -132,14 +148,17 @@ class MetricsCollector {
       ? (this.metrics.cacheHits / totalCacheRequests) * 100 
       : 0;
     
-    // 保存数据到文件
-    this.saveMetrics();
+    // 保存数据到 Redis
+    await this.saveMetrics();
   }
 
   /**
    * 记录搜索错误
    */
-  recordError(errorType: string) {
+  async recordError(errorType: string): Promise<void> {
+    // 确保指标已加载
+    await this.ensureMetricsLoaded();
+    
     this.metrics.totalErrors++;
     this.metrics.errorTypes[errorType] = (this.metrics.errorTypes[errorType] || 0) + 1;
     
@@ -147,25 +166,31 @@ class MetricsCollector {
       this.metrics.errorRate = (this.metrics.totalErrors / this.metrics.totalSearches) * 100;
     }
     
-    // 保存数据到文件
-    this.saveMetrics();
+    // 保存数据到 Redis
+    await this.saveMetrics();
   }
 
   /**
    * 记录用户反馈
    */
-  recordFeedback(feedbackType: string) {
+  async recordFeedback(feedbackType: string): Promise<void> {
+    // 确保指标已加载
+    await this.ensureMetricsLoaded();
+    
     this.metrics.feedbackCount++;
     this.metrics.feedbackTypes[feedbackType] = (this.metrics.feedbackTypes[feedbackType] || 0) + 1;
     
-    // 保存数据到文件
-    this.saveMetrics();
+    // 保存数据到 Redis
+    await this.saveMetrics();
   }
 
   /**
    * 获取当前指标
    */
-  getMetrics() {
+  async getMetrics() {
+    // 确保指标已加载
+    await this.ensureMetricsLoaded();
+    
     const now = Date.now();
     const uptime = now - this.metrics.startTime;
     
@@ -183,7 +208,7 @@ class MetricsCollector {
   /**
    * 重置指标
    */
-  resetMetrics() {
+  async resetMetrics(): Promise<void> {
     const startTime = this.metrics.startTime;
     this.metrics = {
       totalSearches: 0,
@@ -202,7 +227,7 @@ class MetricsCollector {
     };
     
     // 保存重置后的数据
-    this.saveMetrics();
+    await this.saveMetrics();
   }
 
   /**

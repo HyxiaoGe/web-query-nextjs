@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     
     // 如果请求重置指标
     if (reset) {
-      metricsCollector.resetMetrics();
+      await metricsCollector.resetMetrics();
       return NextResponse.json({
         success: true,
         message: 'Metrics reset successfully',
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     }
     
     // 获取监控指标
-    const metrics = metricsCollector.getMetrics();
+    const metrics = await metricsCollector.getMetrics();
     
     // 格式化响应
     const response = {
@@ -214,7 +214,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     
     if (body.action === 'reset') {
-      metricsCollector.resetMetrics();
+      await metricsCollector.resetMetrics();
       return NextResponse.json({
         success: true,
         message: 'Metrics reset successfully',

@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     const feedback = feedbackService.submitFeedback(submission, userAgent);
 
     // 更新指标
-    metricsCollector.recordFeedback(submission.feedbackType);
+    metricsCollector.recordFeedback(submission.feedbackType).catch(console.error);
 
     return NextResponse.json({
       success: true,

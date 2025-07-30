@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
     const rateLimitCheck = await rateLimiter.checkRateLimit(clientIP, validation.params!.q);
     if (!rateLimitCheck.allowed) {
       // 记录限流事件
-      metricsCollector.recordError('rate_limited');
+      metricsCollector.recordError('rate_limited').catch(console.error);
       
       return NextResponse.json(
         {
@@ -115,11 +115,11 @@ export async function POST(request: NextRequest) {
       
       // 记录监控指标
       if (result.success) {
-        metricsCollector.recordSearch(responseTime, result.cached);
+        metricsCollector.recordSearch(responseTime, result.cached).catch(console.error);
         // 记录搜索词统计（异步执行，不阻塞响应）
         recordSearchQuery(validation.params!.q).catch(console.error);
       } else {
-        metricsCollector.recordError('search_failed');
+        metricsCollector.recordError('search_failed').catch(console.error);
       }
       
       // 返回结果
@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
     console.error('Search API error:', error);
     
     // 记录错误
-    metricsCollector.recordError('api_error');
+    metricsCollector.recordError('api_error').catch(console.error);
     
     // 确保释放并发计数
     await rateLimiter.finishRequest();
@@ -191,7 +191,7 @@ export async function GET(request: NextRequest) {
     // 检查限流
     const rateLimitCheck = await rateLimiter.checkRateLimit(clientIP, validation.params!.q);
     if (!rateLimitCheck.allowed) {
-      metricsCollector.recordError('rate_limited');
+      metricsCollector.recordError('rate_limited').catch(console.error);
       
       return NextResponse.json(
         {
@@ -221,11 +221,11 @@ export async function GET(request: NextRequest) {
       
       // 记录监控指标
       if (result.success) {
-        metricsCollector.recordSearch(responseTime, result.cached);
+        metricsCollector.recordSearch(responseTime, result.cached).catch(console.error);
         // 记录搜索词统计（异步执行，不阻塞响应）
         recordSearchQuery(validation.params!.q).catch(console.error);
       } else {
-        metricsCollector.recordError('search_failed');
+        metricsCollector.recordError('search_failed').catch(console.error);
       }
       
       return NextResponse.json(result, {
@@ -244,7 +244,7 @@ export async function GET(request: NextRequest) {
     console.error('Search API error:', error);
     
     // 记录错误
-    metricsCollector.recordError('api_error');
+    metricsCollector.recordError('api_error').catch(console.error);
     
     // 确保释放并发计数
     await rateLimiter.finishRequest();
