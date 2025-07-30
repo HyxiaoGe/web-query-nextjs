@@ -4,7 +4,6 @@
   "outputDirectory": ".next",
   "devCommand": "npm run dev",
   "installCommand": "npm install",
-  "regions": ["sin1", "hkg1", "sfo1"],
   "functions": {
     "src/app/api/search/route.ts": {
       "maxDuration": 30
