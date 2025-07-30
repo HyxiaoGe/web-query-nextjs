@@ -226,5 +226,19 @@ export class RateLimiter {
   }
 }
 
-// 创建全局实例
-export const rateLimiter = new RateLimiter();
+// 导入 Upstash 限流器
+import { UpstashRateLimiter } from './upstash-rate-limiter';
+
+// 根据环境创建限流器实例
+let rateLimiter: RateLimiter | UpstashRateLimiter;
+
+if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+  // Vercel 部署时使用 Upstash 限流器
+  rateLimiter = new UpstashRateLimiter() as any;
+  console.log('Using Upstash rate limiter');
+} else {
+  // 本地或传统部署使用标准限流器
+  rateLimiter = new RateLimiter();
+}
+
+export { rateLimiter };

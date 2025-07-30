@@ -14,8 +14,17 @@ class RedisCacheService implements CacheService {
 
   private async init() {
     try {
+      // 支持 Upstash Redis URL 格式
+      const redisUrl = process.env.REDIS_URL || process.env.UPSTASH_REDIS_REST_URL;
+      
+      if (redisUrl?.includes('upstash')) {
+        // Upstash Redis 使用 REST API，需要特殊处理
+        console.log('Detected Upstash Redis, using REST mode');
+        // 注意：在生产环境中，我们将使用 @upstash/redis 包
+      }
+      
       this.client = createClient({
-        url: process.env.REDIS_URL || 'redis://localhost:6379',
+        url: redisUrl || 'redis://localhost:6379',
         socket: {
           reconnectStrategy: (retries) => {
             if (retries > 10) {
@@ -147,10 +156,24 @@ class MemoryCacheService implements CacheService {
   }
 }
 
+// 导入 Upstash 缓存服务
+import { UpstashCacheService } from './upstash-cache';
+
 // 创建缓存服务实例
 let cacheService: CacheService;
 
-if (process.env.REDIS_URL && process.env.NODE_ENV !== 'development') {
+// 根据环境选择合适的缓存服务
+if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+  // Vercel 部署时使用 Upstash Redis
+  try {
+    cacheService = new UpstashCacheService();
+    console.log('Using Upstash Redis cache service');
+  } catch (error) {
+    console.error('Failed to initialize Upstash, falling back to memory cache:', error);
+    cacheService = new MemoryCacheService();
+  }
+} else if (process.env.REDIS_URL && process.env.NODE_ENV !== 'development') {
+  // 传统 Redis 服务
   cacheService = new RedisCacheService();
 } else {
   // 开发环境或没有 Redis 时使用内存缓存

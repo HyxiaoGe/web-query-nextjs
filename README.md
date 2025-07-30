@@ -2,6 +2,8 @@
 
 基于 Next.js 和 SearxNG 的通用网络搜索服务，提供简洁的搜索界面和强大的 API。
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fyour-username%2Fweb-query-nextjs&env=SEARXNG_URL,UPSTASH_REDIS_REST_URL,UPSTASH_REDIS_REST_TOKEN&envDescription=Configure%20your%20search%20service&envLink=https%3A%2F%2Fgithub.com%2Fyour-username%2Fweb-query-nextjs%2Fblob%2Fmain%2Fdocs%2FDEPLOYMENT.md&project-name=web-query&repository-name=web-query)
+
 ## ✨ 特性
 
 - 🔍 **智能搜索**: 聚合多个搜索引擎结果
