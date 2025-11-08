@@ -13,17 +13,6 @@ services:
     restart: unless-stopped
     networks:
       - web-query-network
-    cap_drop:
-      - ALL
-    cap_add:
-      - CHOWN
-      - SETGID
-      - SETUID
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "1m"
-        max-file: "1"
 
   # Redis 缓存服务
   redis:
