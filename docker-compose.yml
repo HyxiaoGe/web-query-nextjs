@@ -7,20 +7,25 @@ services:
     container_name: web-query-searxng
     ports:
       - "8888:8080"
-    # 暂时注释掉自定义配置，使用默认配置
-    # volumes:
-    #   - ./searxng-config.yml:/etc/searxng/settings.yml:ro
+    volumes:
+      - ./searxng-config.yml:/etc/searxng/settings.yml:ro
     environment:
       - SEARXNG_BASE_URL=http://localhost:8888/
       - SEARXNG_SECRET=web-query-searxng-secret-key-change-in-production
     restart: unless-stopped
     networks:
       - web-query-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
 
   # Redis 缓存服务
   redis:
