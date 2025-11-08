@@ -1,23 +1,35 @@
-# SearxNG 最小化配置 - 只启用核心引擎
-use_default_settings: true
-
 general:
+  debug: false
   instance_name: "Web Query Search"
 
 search:
   safe_search: 0
   autocomplete: ""
   default_lang: "zh-CN"
+  formats:
+    - html
+    - json
 
 server:
   secret_key: "web-query-searxng-secret-key-change-in-production"
   limiter: false
   image_proxy: false
 
+ui:
+  default_theme: simple
+
+# 明确只启用需要的引擎
+engines:
+  - name: google
+    engine: google
+    shortcut: g
+
+  - name: baidu
+    engine: baidu
+    shortcut: bd
+
+  - name: duckduckgo
+    engine: duckduckgo
+    shortcut: ddg
+
 enabled_plugins: []
-disabled_engines:
-  - wikidata
-  - ahmia
-  - torch
-  - yacy
-  - yacy images
