@@ -35,7 +35,7 @@ yarn-error.log*
 
 # Docker
 Dockerfile.dev
-docker-compose.yml
+# docker-compose.yml  # 保留此文件以便本地开发
 searxng/
 
 # Metrics data
