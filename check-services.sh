@@ -28,8 +28,8 @@ echo ""
 
 # 检查 Next.js
 echo "⚛️  Next.js 应用检查:"
-if curl -s http://localhost:3000/ > /dev/null 2>&1; then
-    echo "✅ Next.js 运行正常 (http://localhost:3000)"
+if curl -s http://localhost:3001/ > /dev/null 2>&1; then
+    echo "✅ Next.js 运行正常 (http://localhost:3001)"
 else
     echo "⚠️  Next.js 未运行，请执行: npm run dev"
 fi
