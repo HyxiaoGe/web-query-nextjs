@@ -7,6 +7,8 @@ services:
     container_name: web-query-searxng
     ports:
       - "8888:8080"
+    volumes:
+      - searxng-data:/etc/searxng
     environment:
       - SEARXNG_BASE_URL=http://localhost:8888/
       - SEARXNG_SECRET=web-query-searxng-secret-key-change-in-production
@@ -38,4 +40,6 @@ networks:
 
 volumes:
   redis-data:
+    driver: local
+  searxng-data:
     driver: local
